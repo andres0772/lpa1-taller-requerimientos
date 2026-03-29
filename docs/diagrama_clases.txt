@@ -1,0 +1,200 @@
+╔══════════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║                              DIAGRAMA DE CLASES - Sistema Agencia de Viajes                            ║
+╚══════════════════════════════════════════════════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════════
+  CLASE: AgenciaViajes (Motor del sistema - app.py)
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────┐
+│                      AgenciaViajes                          │
+├─────────────────────────────────────────────────────────────┤
+│  - destinos: dict              (nombre -> Destino)          │
+│  - hoteles: list[Hotel]                                    │
+│  - clientes: list[Cliente]                                 │
+│  - temporadas_regionales: list[Temporada]                  │
+├─────────────────────────────────────────────────────────────┤
+│  + cargar_tarifas()                    (R1)                 │
+│  + registrar_hotel(...)                (R2)                 │
+│  + registrar_cliente(...)              (R11)                │
+│  + buscar_habitaciones(...)            (R12)                │
+│  + realizar_reserva(...)               (R14)                │
+│  + pagar_reserva(reserva)              (R15)                │
+│  + cancelar_reserva(reserva)           (R16)                │
+│  + calificar_estancia(...)             (R17)                │
+│  + listar_destinos()                                        │
+│  + listar_hoteles_activos()                                 │
+│  + obtener_reservas_cliente(email)                          │
+└─────────────────────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+  CLASE: Destino (de la tabla de tarifas)
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────┐
+│                  Destino                    │
+├─────────────────────────────────────────────┤
+│  - nombre: str                              │
+│  - tarifa_pasaje: int                       │
+│  - precio_silver: int                       │
+│  - precio_gold: int                         │
+│  - precio_platinum: int                     │
+├─────────────────────────────────────────────┤
+│  + obtener_precio(categoria: str): int      │
+└─────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+  CLASE: Hotel (de la entrevista)
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────┐
+│                   Hotel                     │
+├─────────────────────────────────────────────┤
+│  - nombre: str                              │
+│  - destino: Destino                         │
+│  - direccion: str                           │
+│  - telefono: str                            │
+│  - email: str                               │
+│  - descripcion: str                         │
+│  - servicios: list[str]                     │
+│  - activo: bool                             │
+│  - condicion_pago: str                      │
+│    (anticipado / al_llegar)                 │
+│  - politica_cancelacion: str                │
+│    (flexible / moderada / estricta)         │
+│  - habitaciones: list[Habitacion]           │
+│  - calificaciones: list[Calificacion]       │
+│  - temporadas: list[Temporada]              │
+│  - ofertas: list[Oferta]                    │
+├─────────────────────────────────────────────┤
+│  + esta_activo(): bool                      │
+│  + calificacion_promedio(): float           │
+│  + agregar_habitacion(hab)                  │
+└─────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+  CLASE: Habitacion (de la entrevista + tarifas)
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────┐
+│                 Habitacion                  │
+├─────────────────────────────────────────────┤
+│  - numero: int                              │
+│  - descripcion: str                         │
+│  - categoria: str (silver/gold/platinum)    │
+│  - capacidad: int                           │
+│  - servicios: list[str]                     │
+│  - activa: bool                             │
+│  - hotel: Hotel                             │
+│  - reservas: list[Reserva]                  │
+│  - calificaciones: list[Calificacion]       │
+├─────────────────────────────────────────────┤
+│  + esta_disponible(fecha_ini, fecha_fin): bool │
+│  + calificacion_promedio(): float           │
+└─────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+  CLASE: Cliente (de la entrevista)
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────┐
+│                  Cliente                    │
+├─────────────────────────────────────────────┤
+│  - nombre: str                              │
+│  - telefono: str                            │
+│  - email: str                               │
+│  - direccion: str                           │
+│  - reservas: list[Reserva]                  │
+└─────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+  CLASE: Reserva (entrevista + tarifas)
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────┐
+│                  Reserva                    │
+├─────────────────────────────────────────────┤
+│  - fecha_inicio: int (día del año)          │
+│  - fecha_fin: int (día del año)             │
+│  - cliente: Cliente                         │
+│  - habitacion: Habitacion                   │
+│  - costo_total: int                         │
+│  - cant_huespedes: int                      │
+│  - estado: str (pendiente/pagada/cancelada) │
+├─────────────────────────────────────────────┤
+│  + cancelar(): bool                         │
+└─────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+  CLASE: Calificacion (de la entrevista)
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────┐
+│               Calificacion                  │
+├─────────────────────────────────────────────┤
+│  - puntuacion: int (1-5)                    │
+│  - comentario: str                          │
+└─────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+  CLASE: Temporada (de la entrevista)
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────┐
+│                 Temporada                   │
+├─────────────────────────────────────────────┤
+│  - nombre: str                              │
+│  - fecha_inicio: int                        │
+│  - fecha_fin: int                           │
+│  - multiplicador: float                     │
+├─────────────────────────────────────────────┤
+│  + contiene(fecha: int): bool               │
+└─────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+  CLASE: Oferta (de la entrevista)
+═══════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────┐
+│                  Oferta                     │
+├─────────────────────────────────────────────┤
+│  - descripcion: str                         │
+│  - fecha_inicio: int                        │
+│  - fecha_fin: int                           │
+│  - descuento: float (0.0 a 1.0)             │
+├─────────────────────────────────────────────┤
+│  + esta_vigente(fecha: int): bool           │
+└─────────────────────────────────────────────┘
+
+
+═══════════════════════════════════════════════════════════════════
+                          RELACIONES
+═══════════════════════════════════════════════════════════════════
+
+  Destino ──(1:N)──► Hotel         Un destino tiene muchos hoteles
+  Hotel ───(1:N)──► Habitacion    Un hotel tiene muchas habitaciones
+  Hotel ───(1:N)──► Temporada     Un hotel tiene temporadas propias
+  Hotel ───(1:N)──► Oferta        Un hotel tiene ofertas propias
+  Hotel ───(1:N)──► Calificacion  Un hotel tiene calificaciones
+  Habitacion─(1:N)─► Reserva      Una habitación tiene muchas reservas
+  Habitacion─(1:N)─► Calificacion Una habitación tiene calificaciones
+  Cliente ──(1:N)──► Reserva      Un cliente hace muchas reservas
+
+
+═══════════════════════════════════════════════════════════════════
+                    FÓRMULA DE COSTO (R10)
+═══════════════════════════════════════════════════════════════════
+
+  costo = (pasaje + precio_categoría × noches)
+          × mult_temporada
+          × mult_huéspedes
+          × (1 - descuento_oferta)
