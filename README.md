@@ -7,7 +7,7 @@
 
 ## Autor
 
-- [@estudiante](https://www.github.com/estudiante)
+- Andres Esteban Vasquez Peña
 
 ## Descripción del Proyecto
 
