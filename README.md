@@ -255,7 +255,7 @@ costo = (pasaje + precio_categoría × noches) × mult_temporada × mult_huéspe
 1. Clonar el proyecto
 
     ```bash
-    git clone https://github.com/clubdecomputacion/lpa1-taller-requerimientos.git
+    git clone https://github.com/andres0772/lpa1-taller-requerimientos.git
     ```
 
 2. Crear y activar entorno virtual
@@ -279,3 +279,58 @@ costo = (pasaje + precio_categoría × noches) × mult_temporada × mult_huéspe
     ```bash
     python3 app.py
     ```
+
+## Guía de Uso
+
+Al ejecutar el sistema aparece un menú con 12 opciones:
+
+```
+  1  - Ver destinos y tarifas       → Tabla con los 16 destinos y precios
+  2  - Ver hoteles y habitaciones   → Lista de hoteles con sus habitaciones
+  3  - Buscar habitaciones          → Buscar por destino, precio, categoría, fechas
+  4  - Registrar cliente            → Crear un nuevo cliente
+  5  - Registrar hotel              → Crear un nuevo hotel con sus condiciones
+  6  - Registrar habitación         → Agregar habitación a un hotel existente
+  7  - Desactivar hotel/habitación  → Marcar como inactivo (no aparece en búsquedas)
+  8  - Realizar reserva             → Reservar una habitación (flujo manual)
+  9  - Ver mis reservas             → Ver reservas de un cliente
+  10 - Pagar reserva                → Cambiar estado de pendiente a pagada
+  11 - Cancelar reserva             → Cancelar con reembolso según política
+  12 - Calificar estancia           → Dejar puntuación (1-5) y comentario
+  0  - Salir
+```
+
+### Ejemplo rápido
+
+1. Ejecutá `python3 app.py`
+2. Opción **4** → registrá un cliente (nombre, teléfono, email, dirección)
+3. Opción **3** → buscá habitaciones (podés filtrar por destino, precio, fechas)
+4. Seleccioná una habitación de los resultados para ver sus detalles
+5. Respondé `s` para reservarla directamente
+6. Opción **10** → pagá la reserva
+
+### Datos precargados
+
+El sistema arranca con datos de ejemplo para poder probar inmediatamente:
+
+| Hotel | Destino | Habitaciones |
+|-------|---------|-------------|
+| Sol Caribe | Miami | 101 (Silver), 201 (Gold), 301 (Platinum) |
+| Playa Maya | Cancún | 101, 102 (Silver), 201 (Gold), 301 (Platinum) |
+| Le Petit Palace | Paris | 1 (Silver), 2 (Gold), 3 (Platinum) |
+
+Cliente de ejemplo: `juan@email.com`
+
+### Temporadas precargadas
+
+| Temporada | Fechas | Efecto |
+|-----------|--------|--------|
+| Alta Verano | 01/01 - 31/01 | +30% al precio |
+| Baja Primavera | 01/02 - 28/02 | -15% al precio |
+| Alta Navidad | 01/03 - 20/03 | +50% al precio |
+
+### Fórmula de costo
+
+```
+costo = (pasaje + precio_categoría × noches) × mult_temporada × mult_huéspedes × (1 - descuento)
+```
