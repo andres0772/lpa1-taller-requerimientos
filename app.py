@@ -770,6 +770,8 @@ def mostrar_hoteles(agencia, destino_nombre=None):
             console.print(f"     Barrio: {hotel.barrio}, CP: {hotel.codigo_postal}")
         console.print(f"  📞 {hotel.telefono} | ✉ {hotel.email}")
         console.print(f"  🏷 Servicios: {', '.join(hotel.servicios)}")
+        if hotel.foto_url:
+            console.print(f"  📸 Foto: {hotel.foto_url}")
         console.print(f"  ⭐ {estrellas}")
 
         # NUEVO: condiciones de pago y cancelación
