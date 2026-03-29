@@ -328,9 +328,3 @@ Cliente de ejemplo: `juan@email.com`
 | Alta Verano | 01/01 - 31/01 | +30% al precio |
 | Baja Primavera | 01/02 - 28/02 | -15% al precio |
 | Alta Navidad | 01/03 - 20/03 | +50% al precio |
-
-### Fórmula de costo
-
-```
-costo = (pasaje + precio_categoría × noches) × mult_temporada × mult_huéspedes × (1 - descuento)
-```
