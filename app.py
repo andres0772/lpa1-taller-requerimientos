@@ -522,11 +522,23 @@ def cargar_datos_ejemplo(agencia):
     )
     sol = agencia.hoteles[-1]
     sol.agregar_habitacion(
-        Habitacion(101, "Habitación estándar vista ciudad", "silver", 2, ["wifi", "tv"])
+        Habitacion(
+            101,
+            "Habitación estándar vista ciudad",
+            "silver",
+            2,
+            ["wifi", "tv"],
+            foto_url="https://via.placeholder.com/400x300?text=Hab+101+Sol+Caribe",
+        )
     )
     sol.agregar_habitacion(
         Habitacion(
-            201, "Habitación superior vista mar", "gold", 3, ["wifi", "tv", "minibar"]
+            201,
+            "Habitación superior vista mar",
+            "gold",
+            3,
+            ["wifi", "tv", "minibar"],
+            foto_url="https://via.placeholder.com/400x300?text=Hab+201+Sol+Caribe",
         )
     )
     sol.agregar_habitacion(
@@ -857,20 +869,22 @@ def mostrar_detalle_habitacion(hotel, hab):
     color_cat = {"silver": "white", "gold": "gold1", "platinum": "magenta"}
     cat_color = color_cat.get(hab.categoria, "white")
 
+    # Contenido del panel
+    contenido = (
+        f"[bold]{hotel.nombre}[/bold] — Habitación {hab.numero}\n\n"
+        f"  📍 Destino: {hotel.destino.nombre}\n"
+        f"  📝 Descripción: {hab.descripcion}\n"
+        f"  🏷 Categoría: [{cat_color}]{hab.categoria.upper()}[/{cat_color}]\n"
+        f"  👥 Capacidad: {hab.capacidad} huéspedes\n"
+        f"  💰 Precio/noche: ${precio}\n"
+        f"  🔧 Servicios: {', '.join(hab.servicios) if hab.servicios else 'Ninguno'}\n"
+        f"  ✅ Estado: {'Activa' if hab.activa else 'Inactiva'}"
+    )
+    if hab.foto_url:
+        contenido += f"\n  📸 Foto: {hab.foto_url}"
+
     console.print(
-        Panel.fit(
-            f"[bold]{hotel.nombre}[/bold] — Habitación {hab.numero}\n\n"
-            f"  📍 Destino: {hotel.destino.nombre}\n"
-            f"  📝 Descripción: {hab.descripcion}\n"
-            f"  🏷 Categoría: [{cat_color}]{hab.categoria.upper()}[/{cat_color}]\n"
-            f"  👥 Capacidad: {hab.capacidad} huéspedes\n"
-            f"  💰 Precio/noche: ${precio}\n"
-            f"  🔧 Servicios: {', '.join(hab.servicios) if hab.servicios else 'Ninguno'}\n"
-            f"  ✅ Estado: {'Activa' if hab.activa else 'Inactiva'}",
-            f"{f'  📸 Foto: {hab.foto_url}' if hab.foto_url else ''}",
-            title=f"🏠 Detalle de Habitación",
-            border_style="cyan",
-        )
+        Panel.fit(contenido, title="🏠 Detalle de Habitación", border_style="cyan")
     )
 
     # Mostrar calificaciones
@@ -1126,6 +1140,11 @@ def menu_principal():
             descripcion = console.input("Descripción: ").strip()
             servicios_str = console.input("Servicios (separados por coma): ").strip()
             servicios = [s.strip() for s in servicios_str.split(",") if s.strip()]
+            foto_url = console.input("URL foto (enter para omitir): ").strip() or None
+            barrio = console.input("Barrio (enter para omitir): ").strip() or None
+            codigo_postal = (
+                console.input("Código postal (enter para omitir): ").strip() or None
+            )
 
             if not all(
                 [nombre, destino_nombre, direccion, telefono, email, descripcion]
@@ -1141,6 +1160,9 @@ def menu_principal():
                 email,
                 descripcion,
                 servicios,
+                foto_url=foto_url,
+                barrio=barrio,
+                codigo_postal=codigo_postal,
             )
             if hotel is None:
                 console.print(f"[red]✗ Destino '{destino_nombre}' no encontrado.[/red]")
@@ -1212,9 +1234,15 @@ def menu_principal():
 
             servicios_str = console.input("Servicios (separados por coma): ").strip()
             servicios = [s.strip() for s in servicios_str.split(",") if s.strip()]
+            foto_url = console.input("URL foto (enter para omitir): ").strip() or None
 
             hab = Habitacion(
-                int(num_str), descripcion, categoria, int(cap_str), servicios
+                int(num_str),
+                descripcion,
+                categoria,
+                int(cap_str),
+                servicios,
+                foto_url=foto_url,
             )
             hotel.agregar_habitacion(hab)
             console.print(
