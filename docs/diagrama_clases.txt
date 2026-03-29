@@ -61,6 +61,10 @@
 │  - descripcion: str                         │
 │  - servicios: list[str]                     │
 │  - activo: bool                             │
+│  - razon_inactividad: str                   │
+│  - foto_url: str                            │
+│  - barrio: str                              │
+│  - codigo_postal: str                       │
 │  - condicion_pago: str                      │
 │    (anticipado / al_llegar)                 │
 │  - politica_cancelacion: str                │
@@ -89,6 +93,11 @@
 │  - capacidad: int                           │
 │  - servicios: list[str]                     │
 │  - activa: bool                             │
+│  - razon_inactividad: str                   │
+│  - foto_url: str                            │
+│  - politica_cancelacion: str                │
+│    (flexible / moderada / estricta)         │
+│    (hereda del hotel si es None)            │
 │  - hotel: Hotel                             │
 │  - reservas: list[Reserva]                  │
 │  - calificaciones: list[Calificacion]       │

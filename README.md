@@ -56,7 +56,7 @@ Revisar la documentación en [`./docs`](./docs)
   > *Luciana: "Al registrarse, solicitamos al cliente su nombre completo, número de teléfono, correo electrónico y dirección."*
 
 #### Búsqueda
-- **R12** 🏨: El sistema debe permitir buscar habitaciones disponibles combinando criterios: destino, fechas, categoría y capacidad.
+- **R12** 🏨: El sistema debe permitir buscar habitaciones disponibles combinando criterios: destino, fechas, categoría, capacidad, precio y calificación mínima.
   > *Felipe: "El cliente puede buscar habitaciones por fecha, ubicación, calificación o precio. Incluso puede combinar varios criterios para afinar su búsqueda."*
 - **R13** 🏨: Al seleccionar una habitación, el sistema debe mostrar su descripción, características, servicios incluidos, calificación y comentarios.
   > *Luciana: "Puede ver una descripción detallada de la habitación, incluyendo sus características, servicios incluidos, fotos y, por supuesto, la calificación y los comentarios de otros huéspedes."*
