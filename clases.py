@@ -1,6 +1,7 @@
-from datos import TARIFAS
 from rich.console import Console
 from rich.table import Table
+
+from datos import TARIFAS
 
 console = Console()
 
@@ -88,13 +89,18 @@ class Calificacion:
 class Habitacion:
     """Una habitación dentro de un hotel."""
 
-    def __init__(self, numero, descripcion, categoria, capacidad, servicios=None):
+    def __init__(
+        self, numero, descripcion, categoria, capacidad, servicios=None, foto_url=None
+    ):
         self.numero = numero
         self.descripcion = descripcion
         self.categoria = categoria.lower()  # silver, gold, platinum
         self.capacidad = capacidad
         self.servicios = servicios or []
+        self.foto_url = foto_url
         self.activa = True
+        self.razon_inactividad = None
+        self.politica_cancelacion = None
         self.hotel = None  # se asigna cuando se agrega a un Hotel
         self.reservas = []  # lista de objetos Reserva
         self.calificaciones = []  # lista de objetos Calificacion
@@ -138,7 +144,17 @@ class Hotel:
     """Un hotel perteneciente a un destino."""
 
     def __init__(
-        self, nombre, destino, direccion, telefono, email, descripcion, servicios=None
+        self,
+        nombre,
+        destino,
+        direccion,
+        telefono,
+        email,
+        descripcion,
+        servicios=None,
+        foto_url=None,
+        barrio=None,
+        codigo_postal=None,
     ):
         self.nombre = nombre
         self.destino = destino  # objeto Destino
@@ -147,6 +163,10 @@ class Hotel:
         self.email = email
         self.descripcion = descripcion
         self.servicios = servicios or []
+        self.razon_inactividad = None
+        self.foto_url = foto_url
+        self.barrio = barrio
+        self.codigo_postal = codigo_postal
         self.activo = True
         self.habitaciones = []  # lista de objetos Habitacion
         self.calificaciones = []  # lista de objetos Calificacion

@@ -11,7 +11,9 @@
 
 ## Descripción del Proyecto
 
-Sistema de consola para una **agencia de viajes** que permite gestionar destinos turísticos, hoteles, habitaciones, clientes y reservas. Los clientes pueden buscar paquetes de viaje (pasaje + hospedaje) por destino, categoría y fechas. El sistema calcula el costo total considerando tarifas predefinidas, temporadas, cantidad de huéspedes y ofertas vigentes. Incluye gestión de pagos (anticipado o al llegar), cancelaciones con políticas diferenciadas por hotel (flexible/moderada/estricta), y un sistema de calificaciones por habitación y hotel.
+## Descripción del Proyecto
+
+Sistema de consola para una **agencia de viajes** que permite gestionar destinos turísticos, hoteles, habitaciones, clientes y reservas. Los clientes pueden buscar paquetes de viaje (pasaje + hospedaje) por **destino, categoría, fechas, precio y calificación**. El sistema calcula el costo total considerando tarifas predefinidas, temporadas, cantidad de huéspedes y ofertas vigentes. Incluye gestión de pagos (anticipado o al llegar), cancelaciones con políticas **diferenciadas por hotel e inclusive por habitación**, y un sistema de calificaciones por habitación y hotel. **Cada hotel y habitación incluye fotos y ubicación geográfica detallada.**
 
 ## Documentación
 
@@ -277,4 +279,3 @@ costo = (pasaje + precio_categoría × noches) × mult_temporada × mult_huéspe
     ```bash
     python3 app.py
     ```
-

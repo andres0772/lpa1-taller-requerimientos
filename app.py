@@ -1,19 +1,21 @@
+import unicodedata
+
+from rich import box
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
 from clases import (
-    Destino,
-    Hotel,
-    Habitacion,
-    Cliente,
-    Reserva,
     Calificacion,
-    Temporada,
+    Cliente,
+    Destino,
+    Habitacion,
+    Hotel,
     Oferta,
+    Reserva,
+    Temporada,
 )
 from datos import TARIFAS
-from rich.console import Console
-from rich.table import Table
-from rich.panel import Panel
-from rich import box
-import unicodedata
 
 console = Console()
 
@@ -116,6 +118,9 @@ class AgenciaViajes:
         email,
         descripcion,
         servicios=None,
+        foto_url=None,
+        barrio=None,
+        codigo_postal=None,
     ):
         """
         R2: Registra un hotel asociado a un destino existente.
@@ -130,7 +135,16 @@ class AgenciaViajes:
         if destino is None:
             return None
         hotel = Hotel(
-            nombre, destino, direccion, telefono, email, descripcion, servicios
+            nombre,
+            destino,
+            direccion,
+            telefono,
+            email,
+            descripcion,
+            servicios,
+            foto_url,
+            barrio,
+            codigo_postal,
         )
         self.hoteles.append(hotel)
         return hotel
@@ -162,6 +176,9 @@ class AgenciaViajes:
         fecha_fin=None,
         categoria=None,
         capacidad_min=None,
+        precio_min=None,
+        precio_max=None,
+        calificacion_min=None,
     ):
         """
         R12: Busca habitaciones disponibles combinando criterios.
@@ -191,6 +208,18 @@ class AgenciaViajes:
                 # Filtrar por capacidad mínima
                 if capacidad_min and hab.capacidad < capacidad_min:
                     continue
+                # filtrar por precio
+                if precio_min or precio_max:
+                    precio = hotel.destino.obtener_precio(hab.categoria)
+                    if precio_min and precio < precio_min:
+                        continue
+                    if precio_max and precio > precio_max:
+                        continue
+                # esto filtra por calificaicon minima
+                if calificacion_min:
+                    if hab.calificacion_promedio() < calificacion_min:
+                        continue
+
                 resultados.append((hotel, hab))
         return resultados
 
@@ -363,7 +392,10 @@ class AgenciaViajes:
         if reserva.estado == "cancelada":
             return {"exito": False, "reembolso": 0, "mensaje": "Ya estaba cancelada"}
 
-        politica = reserva.habitacion.hotel.politica_cancelacion
+        politica = (
+            reserva.habitacion.politica_cancelacion
+            or reserva.habitacion.hotel.politica_cancelacion
+        )
         costo = reserva.costo_total
 
         if politica == "flexible":
@@ -484,6 +516,9 @@ def cargar_datos_ejemplo(agencia):
         "info@solcaribe.com",
         "Hotel frente al mar con vista al Atlántico",
         ["piscina", "restaurante", "spa", "wifi"],
+        foto_url="https://via.placeholder.com/400x300?text=Sol+Caribe",
+        barrio="Soulth Beach",
+        codigo_postal="33139",
     )
     sol = agencia.hoteles[-1]
     sol.agregar_habitacion(
@@ -513,6 +548,7 @@ def cargar_datos_ejemplo(agencia):
         "reservas@playamaya.com",
         "Resort todo incluido en la zona hotelera",
         ["piscina", "restaurante", "bar", "gimnasio", "wifi"],
+        foto_url="https://via.placeholder.com/400x300?text=Sol+Caribe",
     )
     playa = agencia.hoteles[-1]
     playa.agregar_habitacion(
@@ -718,6 +754,8 @@ def mostrar_hoteles(agencia, destino_nombre=None):
 
         console.print(tabla)
         console.print(f"  📍 {hotel.direccion}")
+        if hotel.barrio:
+            console.print(f"     Barrio: {hotel.barrio}, CP: {hotel.codigo_postal}")
         console.print(f"  📞 {hotel.telefono} | ✉ {hotel.email}")
         console.print(f"  🏷 Servicios: {', '.join(hotel.servicios)}")
         console.print(f"  ⭐ {estrellas}")
@@ -829,6 +867,7 @@ def mostrar_detalle_habitacion(hotel, hab):
             f"  💰 Precio/noche: ${precio}\n"
             f"  🔧 Servicios: {', '.join(hab.servicios) if hab.servicios else 'Ninguno'}\n"
             f"  ✅ Estado: {'Activa' if hab.activa else 'Inactiva'}",
+            f"{f'  📸 Foto: {hab.foto_url}' if hab.foto_url else ''}",
             title=f"🏠 Detalle de Habitación",
             border_style="cyan",
         )
@@ -1013,6 +1052,19 @@ def menu_principal():
             ).strip()
             capacidad = int(cap_str) if cap_str.isdigit() else None
 
+            precio_str = console.input("Precio mínimo (enter para omitir): ").strip()
+            precio_min = int(precio_str) if precio_str.isdigit() else None
+
+            precio_str2 = console.input("Precio máximo (enter para omitir): ").strip()
+            precio_max = int(precio_str2) if precio_str2.isdigit() else None
+
+            calif_str = console.input(
+                "Calificación mínima 1-5 (enter para omitir): "
+            ).strip()
+            calificacion_min = (
+                float(calif_str) if calif_str and calif_str.isdigit() else None
+            )
+
             fechas_str = console.input("¿Filtrar por fechas? (s/n): ").strip().lower()
             fecha_ini = fecha_fin = None
             if fechas_str == "s":
@@ -1030,6 +1082,9 @@ def menu_principal():
                 fecha_fin=fecha_fin,
                 categoria=categoria,
                 capacidad_min=capacidad,
+                precio_min=precio_min,
+                precio_max=precio_max,
+                calificacion_min=calificacion_min,
             )
             mostrar_busqueda(resultados, agencia)
 
