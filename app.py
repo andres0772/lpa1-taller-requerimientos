@@ -507,6 +507,13 @@ class AgenciaViajes:
 # ============================================================
 
 
+def _foto_destino(nombre_destino):
+    """Retorna la ruta de la foto del destino desde static/."""
+    # normalizar ya quita acentos y pasa a minúsculas
+    nombre_archivo = normalizar(nombre_destino)
+    return f"static/{nombre_archivo}.png"
+
+
 def cargar_datos_ejemplo(agencia):
     """Carga datos de prueba para poder usar el sistema inmediatamente."""
 
@@ -519,7 +526,7 @@ def cargar_datos_ejemplo(agencia):
         "info@solcaribe.com",
         "Hotel frente al mar con vista al Atlántico",
         ["piscina", "restaurante", "spa", "wifi"],
-        foto_url="https://via.placeholder.com/400x300?text=Sol+Caribe",
+        foto_url=_foto_destino("Miami"),
         barrio="Soulth Beach",
         codigo_postal="33139",
     )
@@ -531,7 +538,6 @@ def cargar_datos_ejemplo(agencia):
             "silver",
             2,
             ["wifi", "tv"],
-            foto_url="https://via.placeholder.com/400x300?text=Hab+101+Sol+Caribe",
         )
     )
     sol.agregar_habitacion(
@@ -541,7 +547,6 @@ def cargar_datos_ejemplo(agencia):
             "gold",
             3,
             ["wifi", "tv", "minibar"],
-            foto_url="https://via.placeholder.com/400x300?text=Hab+201+Sol+Caribe",
         )
     )
     sol.agregar_habitacion(
@@ -563,7 +568,7 @@ def cargar_datos_ejemplo(agencia):
         "reservas@playamaya.com",
         "Resort todo incluido en la zona hotelera",
         ["piscina", "restaurante", "bar", "gimnasio", "wifi"],
-        foto_url="https://via.placeholder.com/400x300?text=Sol+Caribe",
+        foto_url=_foto_destino("Cancún"),
     )
     playa = agencia.hoteles[-1]
     playa.agregar_habitacion(
@@ -604,6 +609,7 @@ def cargar_datos_ejemplo(agencia):
         "contact@lepetitpalace.fr",
         "Hotel boutique en el corazón de París",
         ["restaurante", "wifi", "conserjería"],
+        foto_url=_foto_destino("Paris"),
     )
     palace = agencia.hoteles[-1]
     palace.agregar_habitacion(
