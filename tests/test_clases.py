@@ -202,7 +202,7 @@ class TestReserva:
         assert reserva.estado == "pendiente"
 
     def test_cancelar_reserva(self, hotel_ejemplo, cliente_ejemplo):
-        """R13: Cancelar una reserva cambia su estado y la quita del calendario."""
+        """R16: Cancelar una reserva cambia su estado pero mantiene el historial."""
         hab = hotel_ejemplo.habitaciones[0]
         reserva = Reserva(1, 5, cliente_ejemplo, hab, 500)
         hab.reservas.append(reserva)
@@ -211,8 +211,9 @@ class TestReserva:
         resultado = reserva.cancelar()
         assert resultado is True
         assert reserva.estado == "cancelada"
-        assert reserva not in hab.reservas
-        assert reserva not in cliente_ejemplo.reservas
+        # La reserva se mantiene en las listas (historial)
+        assert reserva in hab.reservas
+        assert reserva in cliente_ejemplo.reservas
 
     def test_cancelar_reserva_ya_cancelada(self, hotel_ejemplo, cliente_ejemplo):
         hab = hotel_ejemplo.habitaciones[0]

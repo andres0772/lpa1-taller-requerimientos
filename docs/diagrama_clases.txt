@@ -203,7 +203,7 @@
                     FÓRMULA DE COSTO (R10)
 ═══════════════════════════════════════════════════════════════════
 
-  costo = (pasaje + precio_categoría × noches)
+  costo = (pasaje + precio_categoría)
           × mult_temporada
           × mult_huéspedes
           × (1 - descuento_oferta)

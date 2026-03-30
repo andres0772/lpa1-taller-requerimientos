@@ -208,15 +208,15 @@ class AgenciaViajes:
                 # Filtrar por capacidad mínima
                 if capacidad_min and hab.capacidad < capacidad_min:
                     continue
-                # filtrar por precio
-                if precio_min or precio_max:
+                # filtrar por precio (comparación sobre precio base de categoría)
+                if precio_min is not None or precio_max is not None:
                     precio = hotel.destino.obtener_precio(hab.categoria)
-                    if precio_min and precio < precio_min:
+                    if precio_min is not None and precio < precio_min:
                         continue
-                    if precio_max and precio > precio_max:
+                    if precio_max is not None and precio > precio_max:
                         continue
-                # esto filtra por calificaicon minima
-                if calificacion_min:
+                # esto filtra por calificacion minima
+                if calificacion_min is not None:
                     if hab.calificacion_promedio() < calificacion_min:
                         continue
 
@@ -282,10 +282,11 @@ class AgenciaViajes:
                 f"huéspedes, solicitó {cant_huespedes}"
             )
 
-        # R11: calcular costo base
-        noches = fecha_fin - fecha_inicio
+        # R10: calcular costo base
+        # La tabla de tarifas tiene UN precio por categoría (no es por noche).
+        # Factores que modifican: temporada, huéspedes, ofertas.
         precio_categoria = hotel.destino.obtener_precio(habitacion.categoria)
-        costo_base = hotel.destino.tarifa_pasaje + (precio_categoria * noches)
+        costo_base = hotel.destino.tarifa_pasaje + precio_categoria
 
         # NUEVO: aplicar multiplicador de temporada
         # Luciana: "el precio puede cambiar... También influye la temporada"
@@ -395,6 +396,7 @@ class AgenciaViajes:
         politica = (
             reserva.habitacion.politica_cancelacion
             or reserva.habitacion.hotel.politica_cancelacion
+            or "moderada"  # default si ningún hotel/habitación configuró política
         )
         costo = reserva.costo_total
 
@@ -447,19 +449,17 @@ class AgenciaViajes:
         if habitacion is None:
             return "Habitación no encontrada"
 
-        # Verificar que el cliente tenga una reserva pagada en esta habitación
+        # Verificar que el cliente tenga una reserva pagada NO calificada en esta habitación
         reserva_valida = None
         for r in cliente.reservas:
-            if (
-                r.cliente == cliente
-                and r.habitacion == habitacion
-                and r.estado == "pagada"
-            ):
+            if r.habitacion == habitacion and r.estado == "pagada" and not r.calificada:
                 reserva_valida = r
                 break
 
         if reserva_valida is None:
-            return "El cliente no tiene reservas pagadas en esta habitación"
+            return (
+                "El cliente no tiene reservas pagadas sin calificar en esta habitación"
+            )
 
         # Si se proporciona fecha_actual, verificar que la estadía ya terminó
         if fecha_actual is not None and reserva_valida.fecha_fin > fecha_actual:
@@ -472,6 +472,9 @@ class AgenciaViajes:
         habitacion.calificaciones.append(calificacion)
         # Crear copia separada para el hotel (no compartir por referencia)
         hotel.calificaciones.append(Calificacion(puntuacion, comentario))
+
+        # Marcar la reserva como calificada (solo se puede calificar una vez)
+        reserva_valida.calificada = True
 
         return calificacion
 
@@ -820,7 +823,7 @@ def mostrar_busqueda(resultados, agencia=None):
     tabla.add_column("Descripción")
     tabla.add_column("Categoría", justify="center")
     tabla.add_column("Cap.", justify="center")
-    tabla.add_column("Precio/noche", justify="right", style="yellow")
+    tabla.add_column("Precio", justify="right", style="yellow")
 
     for i, (hotel, hab) in enumerate(resultados, 1):
         precio = hotel.destino.obtener_precio(hab.categoria)
@@ -878,7 +881,7 @@ def mostrar_detalle_habitacion(hotel, hab):
         f"  📝 Descripción: {hab.descripcion}\n"
         f"  🏷 Categoría: [{cat_color}]{hab.categoria.upper()}[/{cat_color}]\n"
         f"  👥 Capacidad: {hab.capacidad} huéspedes\n"
-        f"  💰 Precio/noche: ${precio}\n"
+        f"  💰 Precio: ${precio}\n"
         f"  🔧 Servicios: {', '.join(hab.servicios) if hab.servicios else 'Ninguno'}\n"
         f"  ✅ Estado: {'Activa' if hab.activa else 'Inactiva'}"
     )

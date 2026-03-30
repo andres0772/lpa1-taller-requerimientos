@@ -85,7 +85,7 @@ class TestRegistrarHotel:
 
 
 class TestRegistrarCliente:
-    """R8: El sistema debe permitir registrar clientes."""
+    """R11: El sistema debe permitir registrar clientes."""
 
     def test_registrar_cliente_exitoso(self, agencia_vacia):
         cliente = agencia_vacia.registrar_cliente("Ana", "123", "ana@mail.com", "Dir")
@@ -108,7 +108,7 @@ class TestRegistrarCliente:
 
 
 class TestBuscarHabitaciones:
-    """R9: El sistema debe permitir buscar habitaciones por criterios."""
+    """R12: El sistema debe permitir buscar habitaciones por criterios."""
 
     def test_buscar_todas(self, agencia_con_datos):
         resultados = agencia_con_datos.buscar_habitaciones()
@@ -174,7 +174,7 @@ class TestBuscarHabitaciones:
 
 
 class TestReservas:
-    """R10: Realizar reservas. R11: Calcular costo correctamente."""
+    """R14: Realizar reservas. R10: Calcular costo correctamente."""
 
     def test_realizar_reserva_exitosa(self, agencia_con_datos):
         agencia_con_datos.registrar_cliente("Test", "123", "test@mail.com", "Dir")
@@ -186,22 +186,23 @@ class TestReservas:
 
     def test_costo_calculado_correctamente(self, agencia_con_datos):
         """
-        R11: costo = (pasaje + precio_cat × noches) × temporada × huespedes - descuento
-        Cancún: pasaje=350, silver=105, 4 noches = 770 base
+        R10: costo = (pasaje + precio_cat) × temporada × huespedes × (1 - descuento)
+        La tabla de tarifas tiene UN precio por categoría (no es por noche).
+        Cancún: pasaje=350, silver=105, base = 455
         Temporada Alta Verano (días 1-31): ×1.3
         1 huésped: ×1.0
-        Oferta Cancún (días 1-31): -10%
-        Total: 770 × 1.3 × 1.0 × 0.9 = 900.9 ≈ 901
+        Oferta Playa Maya (días 1-31): -10%
+        Total: 455 × 1.3 × 1.0 × 0.9 = 532.35 ≈ 532
         """
         agencia_con_datos.registrar_cliente("Test", "123", "test@mail.com", "Dir")
         reserva = agencia_con_datos.realizar_reserva(
             "test@mail.com", "Playa Maya", 101, 1, 5
         )
-        # Base: 350 + (105 * 4) = 770
-        # × temporada 1.3 = 1001
-        # × huéspedes 1.0 = 1001
-        # × descuento 0.9 (10% off) = 900.9 ≈ 901
-        assert reserva.costo_total == 901
+        # Base: 350 + 105 = 455
+        # × temporada 1.3 = 591.5
+        # × huéspedes 1.0 = 591.5
+        # × descuento 0.9 (10% off) = 532.35 ≈ 532
+        assert reserva.costo_total == 532
 
     def test_reserva_cliente_no_existe(self, agencia_con_datos):
         resultado = agencia_con_datos.realizar_reserva(
@@ -257,7 +258,7 @@ class TestReservas:
 
 
 class TestPagarReserva:
-    """R12: El sistema debe permitir pagar una reserva pendiente."""
+    """R15: El sistema debe permitir pagar una reserva pendiente."""
 
     def test_pagar_reserva_exitoso(self, agencia_con_datos):
         agencia_con_datos.registrar_cliente("Test", "123", "test@mail.com", "Dir")
@@ -295,7 +296,7 @@ class TestPagarReserva:
 
 
 class TestCancelarReserva:
-    """R13: El sistema debe procesar cancelaciones."""
+    """R16: El sistema debe procesar cancelaciones."""
 
     def test_cancelar_reserva(self, agencia_con_datos):
         agencia_con_datos.registrar_cliente("Test", "123", "test@mail.com", "Dir")
@@ -328,7 +329,7 @@ class TestCancelarReserva:
 
 
 class TestCalificaciones:
-    """R14, R15: Calificar estancias y calcular promedios."""
+    """R17, R18: Calificar estancias y calcular promedios."""
 
     def test_calificar_exitoso(self, agencia_con_datos):
         agencia_con_datos.registrar_cliente("Test", "123", "test@mail.com", "Dir")

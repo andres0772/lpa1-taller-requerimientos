@@ -1,7 +1,4 @@
 from rich.console import Console
-from rich.table import Table
-
-from datos import TARIFAS
 
 console = Console()
 
@@ -115,6 +112,9 @@ class Habitacion:
         if not self.activa:
             return False
         for reserva in self.reservas:
+            # Reservas canceladas no bloquean disponibilidad
+            if reserva.estado == "cancelada":
+                continue
             # Dos rangos se superponen si:
             #   inicio1 < fin2 AND inicio2 < fin1
             if fecha_inicio < reserva.fecha_fin and reserva.fecha_inicio < fecha_fin:
@@ -214,8 +214,8 @@ class Hotel:
 #  "El cliente confirma su selección y procede a realizar
 #   el pago. Una vez que el pago se confirma, la reserva
 #   queda formalizada."
-#  Fórmula de costo viene de la tabla de tarifas (R11):
-#  costo_total = tarifa_pasaje + (precio_categoria × noches)
+#  Fórmula de costo viene de la tabla de tarifas (R10):
+#  costo_total = tarifa_pasaje + precio_categoria
 # ============================================================
 
 
@@ -238,16 +238,13 @@ class Reserva:
         self.costo_total = costo_total
         self.cant_huespedes = cant_huespedes
         self.estado = "pendiente"  # pendiente, pagada, cancelada
+        self.calificada = False  # solo se puede calificar una vez
 
     def cancelar(self):
-        """Cancela la reserva y la quita del calendario de la habitación."""
+        """Cancela la reserva. Solo cambia el estado, no la elimina del historial."""
         if self.estado == "cancelada":
             return False
         self.estado = "cancelada"
-        if self in self.habitacion.reservas:
-            self.habitacion.reservas.remove(self)
-        if self in self.cliente.reservas:
-            self.cliente.reservas.remove(self)
         return True
 
     def __str__(self):

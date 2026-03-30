@@ -11,8 +11,6 @@
 
 ## Descripción del Proyecto
 
-## Descripción del Proyecto
-
 Sistema de consola para una **agencia de viajes** que permite gestionar destinos turísticos, hoteles, habitaciones, clientes y reservas. Los clientes pueden buscar paquetes de viaje (pasaje + hospedaje) por **destino, categoría, fechas, precio y calificación**. El sistema calcula el costo total considerando tarifas predefinidas, temporadas, cantidad de huéspedes y ofertas vigentes. Incluye gestión de pagos (anticipado o al llegar), cancelaciones con políticas **diferenciadas por hotel e inclusive por habitación**, y un sistema de calificaciones por habitación y hotel. **Cada hotel y habitación incluye fotos y ubicación geográfica detallada.**
 
 ## Documentación
@@ -49,7 +47,7 @@ Revisar la documentación en [`./docs`](./docs)
 - **R9** 🏨: El precio de una reserva debe variar según la cantidad de huéspedes, sin exceder la capacidad máxima de la habitación.
   > *Luciana: "El precio puede cambiar dependiendo de la cantidad de personas que se alojen en la habitación, siempre y cuando no se exceda la capacidad máxima."*
 - **R10** 📊: El sistema debe calcular el costo total de una reserva considerando: tarifa del pasaje, precio por categoría, multiplicador de temporada, ajuste por huéspedes y descuentos por ofertas vigentes.
-  > *Fórmula: costo = (pasaje + precio_categoría × noches) × temporada × huéspedes × (1 - descuento)*
+  > *Fórmula: costo = (pasaje + precio_categoría) × temporada × huéspedes × (1 - descuento)*
 
 #### Gestión de Clientes
 - **R11** 🏨: El sistema debe permitir registrar clientes con nombre completo, número de teléfono, email y dirección.
@@ -225,7 +223,7 @@ Caso de Uso 6 (Desactivar)  → R3, R6, R7
 
 **Fórmula de costo (R10):**
 ```
-costo = (pasaje + precio_categoría × noches) × mult_temporada × mult_huéspedes × (1 - descuento)
+costo = (pasaje + precio_categoría) × mult_temporada × mult_huéspedes × (1 - descuento)
 ```
 
 
