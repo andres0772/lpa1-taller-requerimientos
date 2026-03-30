@@ -1,3 +1,4 @@
+import os
 import unicodedata
 
 from rich import box
@@ -134,6 +135,13 @@ class AgenciaViajes:
                 break
         if destino is None:
             return None
+
+        # Si no se proporcionó foto, usar la imagen del destino si existe
+        if foto_url is None:
+            ruta_destino = f"static/{normalizar(nombre_destino)}.png"
+            if os.path.exists(ruta_destino):
+                foto_url = ruta_destino
+
         hotel = Hotel(
             nombre,
             destino,
