@@ -78,6 +78,32 @@ class TestRegistrarHotel:
         assert hotel is not None
         assert hotel.destino.nombre == "Miami"
 
+    def test_registrar_hotel_campos_completos(self, agencia_vacia):
+        """R2: Todos los campos del hotel deben guardarse correctamente."""
+        hotel = agencia_vacia.registrar_hotel(
+            "Hotel Test",
+            "Miami",
+            "Calle 123",
+            "+1-305-555-0101",
+            "info@test.com",
+            "Un hotel de prueba",
+            ["wifi", "piscina"],
+            "https://foto.com/hotel.jpg",
+            "Playa Norte",
+            "33139",
+        )
+        assert hotel.nombre == "Hotel Test"
+        assert hotel.destino.nombre == "Miami"
+        assert hotel.direccion == "Calle 123"
+        assert hotel.telefono == "+1-305-555-0101"
+        assert hotel.email == "info@test.com"
+        assert hotel.descripcion == "Un hotel de prueba"
+        assert hotel.servicios == ["wifi", "piscina"]
+        assert hotel.foto_url == "https://foto.com/hotel.jpg"
+        assert hotel.barrio == "Playa Norte"
+        assert hotel.codigo_postal == "33139"
+        assert hotel.activo is True
+
 
 # ============================================================
 #  TESTS: Registro de clientes (R8)
@@ -100,6 +126,16 @@ class TestRegistrarCliente:
         )
         assert resultado is None
         assert len(agencia_vacia.clientes) == 1
+
+    def test_registrar_cliente_campos_completos(self, agencia_vacia):
+        """R11: Todos los campos del cliente deben guardarse correctamente."""
+        cliente = agencia_vacia.registrar_cliente(
+            "Ana López", "+54-11-5555-9999", "ana@mail.com", "Av. Libertador 1234"
+        )
+        assert cliente.nombre == "Ana López"
+        assert cliente.telefono == "+54-11-5555-9999"
+        assert cliente.email == "ana@mail.com"
+        assert cliente.direccion == "Av. Libertador 1234"
 
 
 # ============================================================
@@ -166,6 +202,50 @@ class TestBuscarHabitaciones:
         resultados = agencia_con_datos.buscar_habitaciones()
         hoteles_en_resultados = [h.nombre for (h, _) in resultados]
         assert hotel_inactivo not in hoteles_en_resultados
+
+    def test_buscar_por_precio_min(self, agencia_con_datos):
+        """R12: Filtrar por precio mínimo de categoría."""
+        resultados = agencia_con_datos.buscar_habitaciones(precio_min=200)
+        for hotel, hab in resultados:
+            precio = hotel.destino.obtener_precio(hab.categoria)
+            assert precio >= 200
+
+    def test_buscar_por_precio_max(self, agencia_con_datos):
+        """R12: Filtrar por precio máximo de categoría."""
+        resultados = agencia_con_datos.buscar_habitaciones(precio_max=150)
+        for hotel, hab in resultados:
+            precio = hotel.destino.obtener_precio(hab.categoria)
+            assert precio <= 150
+
+    def test_buscar_por_precio_rango(self, agencia_con_datos):
+        """R12: Filtrar por rango de precios."""
+        resultados = agencia_con_datos.buscar_habitaciones(
+            precio_min=100, precio_max=150
+        )
+        assert len(resultados) > 0
+        for hotel, hab in resultados:
+            precio = hotel.destino.obtener_precio(hab.categoria)
+            assert 100 <= precio <= 150
+
+    def test_buscar_por_calificacion_min(self, agencia_con_datos):
+        """R12: Filtrar por calificación mínima."""
+        # Dar calificaciones a una habitación específica
+        agencia_con_datos.registrar_cliente("Test", "123", "test@mail.com", "Dir")
+        reserva = agencia_con_datos.realizar_reserva(
+            "test@mail.com", "Playa Maya", 101, 1, 5
+        )
+        agencia_con_datos.pagar_reserva(reserva)
+        agencia_con_datos.calificar_estancia("test@mail.com", "Playa Maya", 101, 4)
+
+        # Buscar con calificacion_min=3 → la habitación calificada debe aparecer
+        resultados = agencia_con_datos.buscar_habitaciones(calificacion_min=3)
+        numeros = [hab.numero for (_, hab) in resultados]
+        assert 101 in numeros
+
+        # Buscar con calificacion_min=5 → la habitación con promedio 4 NO debe aparecer
+        resultados_altos = agencia_con_datos.buscar_habitaciones(calificacion_min=5)
+        numeros_altos = [hab.numero for (_, hab) in resultados_altos]
+        assert 101 not in numeros_altos
 
 
 # ============================================================
@@ -253,7 +333,7 @@ class TestReservas:
 
 
 # ============================================================
-#  TESTS: Pagar reserva (R12)
+#  TESTS: Pagar reserva (R15)
 # ============================================================
 
 
@@ -267,6 +347,30 @@ class TestPagarReserva:
         )
         assert reserva.estado == "pendiente"
 
+        resultado = agencia_con_datos.pagar_reserva(reserva)
+        assert resultado["exito"] is True
+        assert reserva.estado == "pagada"
+
+    def test_hotel_anticipado_tiene_condicion_correcta(self, agencia_con_datos):
+        """R15: Hoteles deben tener condición de pago configurada."""
+        sol_caribe = next(
+            h for h in agencia_con_datos.hoteles if h.nombre == "Sol Caribe"
+        )
+        assert sol_caribe.condicion_pago == "anticipado"
+
+        playa = next(h for h in agencia_con_datos.hoteles if h.nombre == "Playa Maya")
+        assert playa.condicion_pago == "al_llegar"
+
+    def test_hotel_al_llegar_permite_reservar_sin_pagar(self, agencia_con_datos):
+        """R15: Hotel con condición 'al_llegar' permite reserva pendiente."""
+        agencia_con_datos.registrar_cliente("Test", "123", "test@mail.com", "Dir")
+        # Playa Maya tiene condicion_pago = "al_llegar"
+        reserva = agencia_con_datos.realizar_reserva(
+            "test@mail.com", "Playa Maya", 101, 40, 44, pagar_ahora=False
+        )
+        assert not isinstance(reserva, str)
+        assert reserva.estado == "pendiente"
+        # Se puede pagar después
         resultado = agencia_con_datos.pagar_reserva(reserva)
         assert resultado["exito"] is True
         assert reserva.estado == "pagada"
@@ -454,21 +558,56 @@ class TestHuespedes:
 
 
 class TestOfertas:
-    """Luciana: 'Muchos hoteles tienen promociones por temporada'"""
+    """R4: Ofertas/promociones por temporada con descuento y rango de fechas."""
 
     def test_oferta_aplica_descuento(self, agencia_con_datos):
-        """Playa Maya tiene 10% descuento días 1-31."""
+        """R4: Una oferta vigente debe reducir el costo final."""
         agencia_con_datos.registrar_cliente("Test", "123", "test@mail.com", "Dir")
-        # Reserva sin oferta (día 40)
-        r_sin = agencia_con_datos.realizar_reserva(
+        # Sol Caribe NO tiene ofertas → calcular costo sin descuento
+        agencia_con_datos.realizar_reserva("test@mail.com", "Sol Caribe", 101, 1, 5)
+        # Agregar oferta del 15% a Sol Caribe para días 1-31
+        from clases import Oferta
+        from app import parsear_fecha
+
+        agencia_con_datos.hoteles[0].ofertas.append(
+            Oferta("Test oferta", parsear_fecha("01/01"), parsear_fecha("31/01"), 0.15)
+        )
+        # Misma habitación (201), mismas fechas, CON oferta del 15%
+        r_con = agencia_con_datos.realizar_reserva(
+            "test@mail.com", "Sol Caribe", 201, 1, 5
+        )
+        # Base: 334 + 151(gold) = 485, × 1.3(temporada) = 630.5, × 0.85(oferta) = 535.925 ≈ 536
+        assert r_con.costo_total == 536
+
+    def test_oferta_fuera_de_rango_no_aplica(self, agencia_con_datos):
+        """R4: Oferta vigente días 1-31 NO debe aplicar en día 40."""
+        agencia_con_datos.registrar_cliente("Test", "123", "test@mail.com", "Dir")
+        # Día 40 está fuera del rango de oferta de Playa Maya (1-31)
+        # Playa Maya rooms: 101, 102, 201, 301
+        r_sin_oferta = agencia_con_datos.realizar_reserva(
+            "test@mail.com", "Playa Maya", 102, 40, 44
+        )
+        assert not isinstance(r_sin_oferta, str)
+        # Verificar que no se aplicó descuento de oferta
+        # Base: 350 + 105 = 455, × 0.85 (baja primavera) = 386.75 ≈ 387
+        assert r_sin_oferta.costo_total == 387
+
+    def test_oferta_porcentaje_exacto(self, agencia_con_datos):
+        """R4: El descuento de la oferta debe ser el porcentaje correcto."""
+        agencia_con_datos.registrar_cliente("Test", "123", "test@mail.com", "Dir")
+        # Playa Maya, silver(105), día 5 (Alta Verano 1.3, oferta 10%)
+        # Base: 350 + 105 = 455, × 1.3 = 591.5, × 0.9 = 532.35 ≈ 532
+        r_con_oferta = agencia_con_datos.realizar_reserva(
+            "test@mail.com", "Playa Maya", 101, 1, 5
+        )
+        assert r_con_oferta.costo_total == 532
+
+        # Misma habitación, día 40 (Baja Primavera 0.85, sin oferta)
+        # Base: 350 + 105 = 455, × 0.85 = 386.75 ≈ 387
+        r_sin_oferta = agencia_con_datos.realizar_reserva(
             "test@mail.com", "Playa Maya", 101, 40, 44
         )
-        # Reserva con oferta (día 5)
-        r_con = agencia_con_datos.realizar_reserva(
-            "test@mail.com", "Playa Maya", 102, 1, 5
-        )
-        # Con oferta debería costar menos (misma temporada base diferente)
-        assert r_con.costo_total != r_sin.costo_total
+        assert r_sin_oferta.costo_total == 387
 
 
 # ============================================================

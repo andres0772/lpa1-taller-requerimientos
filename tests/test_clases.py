@@ -93,6 +93,24 @@ class TestHabitacion:
         assert hab.capacidad == 2
         assert hab.activa is True
 
+    def test_crear_habitacion_campos_completos(self):
+        """R5: Todos los campos de habitación deben guardarse correctamente."""
+        hab = Habitacion(
+            101,
+            "Suite de lujo",
+            "gold",
+            3,
+            ["wifi", "minibar", "jacuzzi"],
+            "https://foto.com/hab.jpg",
+        )
+        assert hab.numero == 101
+        assert hab.descripcion == "Suite de lujo"
+        assert hab.categoria == "gold"
+        assert hab.capacidad == 3
+        assert hab.servicios == ["wifi", "minibar", "jacuzzi"]
+        assert hab.foto_url == "https://foto.com/hab.jpg"
+        assert hab.activa is True
+
     def test_habitacion_conoce_su_hotel(self, hotel_ejemplo):
         """La referencia bidireccional habitacion.hotel debe existir."""
         hab = hotel_ejemplo.habitaciones[0]
@@ -131,6 +149,29 @@ class TestHabitacion:
         hab.calificaciones.append(Calificacion(4))
         hab.calificaciones.append(Calificacion(5))
         assert hab.calificacion_promedio() == 4.5
+
+    def test_datos_detalle_habitacion(self, hotel_ejemplo):
+        """R13: Los datos de detalle de habitación deben ser accesibles."""
+        hab = hotel_ejemplo.habitaciones[2]  # Suite platinum
+        # Agregar calificaciones
+        hab.calificaciones.append(Calificacion(5, "Excelente suite"))
+        hab.calificaciones.append(Calificacion(4, "Muy buena"))
+
+        # Verificar que todos los datos de detalle existen
+        assert hab.descripcion is not None and hab.descripcion == "Suite"
+        assert hab.categoria == "platinum"
+        assert hab.capacidad == 4
+        assert "wifi" in hab.servicios
+        assert "jacuzzi" in hab.servicios
+        assert len(hab.calificaciones) == 2
+        assert hab.calificacion_promedio() == 4.5
+        assert hab.calificaciones[0].comentario == "Excelente suite"
+        assert hab.calificaciones[1].comentario == "Muy buena"
+
+        # Verificar que el hotel también tiene promedio
+        hotel_ejemplo.calificaciones.append(Calificacion(5))
+        hotel_ejemplo.calificaciones.append(Calificacion(3))
+        assert hotel_ejemplo.calificacion_promedio() == 4.0
 
 
 # ============================================================
